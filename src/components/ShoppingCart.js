@@ -13,23 +13,32 @@ const ShoppingCart = ({shopCartState, productState}) => {
     const RemoveProduct = product => {
         const index = productState.cartProducts.findIndex(i => i.sku === product.sku);
         const newProducts = [...productState.cartProducts, ];
-        console.log("newprod", newProducts);
         newProducts.splice(index, 1);
         productState.setCartProducts(newProducts);
     }
-    const customStyles = {
-        content : {
-          top                   : '50%',
-          left                  : '50%',
-          right                 : 'auto',
-          bottom                : 'auto',
-          marginRight           : '-50%',
-          transform             : 'translate(-50%, -50%)'
+    const IncreaseQuantitiy = product => {
+        const index = productState.cartProducts.findIndex(i => i.sku === product.sku);
+        var newProd = null;
+        const Products = [...productState.cartProducts, ];
+        if(index>-1){
+            newProd = {...Products[index], quantity: Products[index].quantity + 1};
+            Products.splice(index, 1, newProd);
         }
-    };
-    var subtitle;
-    const afterOpenModal = () => {
-        subtitle.style.color = '#f00';
+        productState.setCartProducts(Products);
+    }
+    const DecreaseQuantitiy = product => {
+        const index = productState.cartProducts.findIndex(i => i.sku === product.sku);
+        var newProd = null;
+        const Products = [...productState.cartProducts, ];
+        if(index>-1 && (Products[index].quantity-1 > 0)){
+            newProd = {...Products[index], quantity: Products[index].quantity - 1};
+            Products.splice(index, 1, newProd);
+            productState.setCartProducts(Products);
+        }
+        else{
+            RemoveProduct(product);
+        }
+
     }
     /* (
     <div>
@@ -72,13 +81,16 @@ const ShoppingCart = ({shopCartState, productState}) => {
                                         </Image.Container>
                                     </Column>
                                     <Column size={7}>
+                                        <Title></Title>
                                         <Title size={5}>{product.title}</Title>
                                         <Title subtitle size={5}>{product.description}</Title>
                                         <Title className="quantity" size={5}>Quantity: {product.quantity}</Title>
                                     </Column>
                                     <Column size={2}>
-                                        <Button onClick= {() => {RemoveProduct(product)}}><i className="material-icons">close</i></Button>
+                                        <i className="material-icons" onClick= {() => {RemoveProduct(product)}}>close</i>
                                         <Title size={5}>${product.price}</Title>
+                                        <i className="material-icons" onClick= {() => {IncreaseQuantitiy(product)}}>add_circle</i>
+                                        <i className="material-icons" onClick= {() => {DecreaseQuantitiy(product)}}>remove_circle</i>
                                     </Column>
                                 </Column.Group>                                                
                             </List.Item>
@@ -87,9 +99,14 @@ const ShoppingCart = ({shopCartState, productState}) => {
             </List>
             </Modal.Card.Body>
             <Modal.Card.Foot>
-            <Title subtitle size={5}>SUBTOTAL {CalTotal()}</Title>
-            <Button fullwidth color="black" size="large">Checkout</Button>
+                    <Column size={6}>
+                        <Title size={4}>SUBTOTAL</Title>
+                    </Column>
+                    <Column size={6}>
+                        <Title size={4}>${CalTotal()}</Title>
+                    </Column>                     
             </Modal.Card.Foot>
+            <Button fullwidth color="black" size="large">Checkout</Button>
         </Modal.Card>
         </Modal>)
 }
