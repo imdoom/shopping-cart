@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import "rbx/index.css";
 import "./css/App.css";
 import "./css/ShoppingCart.css";
-import { Column, Notification, Image, Tag, Button, Title } from "rbx";
+import { Column, Notification, Image, Button, Title } from "rbx";
 import ShoppingCart from "./components/ShoppingCart"
 
 const App = () => {
@@ -93,11 +93,10 @@ const App = () => {
                                       </Image.Container>
                                       {product.title}
                                       <br></br>
-                                      <Tag size="large">${product.price}</Tag>
+                                      <Title size={4}>${product.price}</Title>
                                       <Button.Group align="centered">
                                           {Object.keys(inventory).length > 0 ? Object.keys(inventory[product.sku]).map(s => (inventory[product.sku][s] > 0) && <Button>{s}</Button>) : null}                                        
                                       </Button.Group>
-                                      <br></br>
                                       <Button fullwidth color="black" size="large" onClick={()=>{setCartOpen(true); AddProduct(product)}}>Add to cart</Button>
                                     </Notification>
                                   </Column>)}
