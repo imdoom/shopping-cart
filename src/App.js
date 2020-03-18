@@ -4,6 +4,21 @@ import "./css/App.css";
 import "./css/ShoppingCart.css";
 import { Column, Notification, Image, Button, Title } from "rbx";
 import ShoppingCart from "./components/ShoppingCart"
+import firebase from 'firebase/app';
+import 'firebase/database';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCK8vbymPcLDewFfHznSt8lEdgGZp4O4rk",
+  authDomain: "shopping-cart-2069e.firebaseapp.com",
+  databaseURL: "https://shopping-cart-2069e.firebaseio.com",
+  projectId: "shopping-cart-2069e",
+  storageBucket: "shopping-cart-2069e.appspot.com",
+  messagingSenderId: "17139108491",
+  appId: "1:17139108491:web:b7a7a301853ae0e95f228e",
+  measurementId: "G-NF59H641RN"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref();
 
 const App = () => {
   const [data, setData] = useState({});
@@ -30,14 +45,22 @@ const App = () => {
     };
     fetchProducts();
   }, []);
-  useEffect(() => {
+  /* useEffect(() => {
     const fetchInventory = async () => {
       const response = await fetch('./data/inventory.json');
       const json = await response.json();
       setInventory(json);
     };
     fetchInventory();
+  }, []); */
+  useEffect(() => {
+    const handleData = snap => {
+      if (snap.val()) setInventory(snap.val());
+    }
+    db.on('value', handleData, error => alert(error));
+    return () => { db.off('value', handleData); };
   }, []);
+
   const AddProduct = (product) => {
     var products = cartProducts;
     var newProd = null;
@@ -94,7 +117,7 @@ const App = () => {
                                       {product.title}
                                       <br></br>
                                       <Title size={4}>${product.price}</Title>
-                                      <Button.Group align="centered">
+                                      <Button.Group align="centered">                                                                                   
                                           {Object.keys(inventory).length > 0 ? Object.keys(inventory[product.sku]).map(s => (inventory[product.sku][s] > 0) && <Button>{s}</Button>) : null}                                        
                                       </Button.Group>
                                       <Button fullwidth color="black" size="large" onClick={()=>{setCartOpen(true); AddProduct(product)}}>Add to cart</Button>
