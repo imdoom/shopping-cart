@@ -20,7 +20,7 @@ const App = () => {
     return arr;
   }
   const shownProducts = sizeFilter();
-  console.log("shown prod "+shownProducts);
+  //console.log("shown prod "+shownProducts);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -94,12 +94,8 @@ const App = () => {
                                       {product.title}
                                       <br></br>
                                       <Tag size="large">${product.price}</Tag>
-                                      <br></br>
-                                      <Button.Group align="centered"> 
-                                        <Button color="danger">S</Button>
-                                        <Button color="danger">M</Button>
-                                        <Button color="danger">L</Button>
-                                        <Button color="danger">XL</Button>
+                                      <Button.Group align="centered">
+                                          {Object.keys(inventory).length > 0 ? Object.keys(inventory[product.sku]).map(s => (inventory[product.sku][s] > 0) && <Button>{s}</Button>) : null}                                        
                                       </Button.Group>
                                       <br></br>
                                       <Button fullwidth color="black" size="large" onClick={()=>{setCartOpen(true); AddProduct(product)}}>Add to cart</Button>
