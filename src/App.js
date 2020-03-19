@@ -2,10 +2,22 @@ import React, { useEffect, useState } from 'react';
 import "rbx/index.css";
 import "./css/App.css";
 import "./css/ShoppingCart.css";
-import { Column, Notification, Image, Button, Title } from "rbx";
+import { Column, Notification, Image, Button, Title, Message } from "rbx";
 import ShoppingCart from "./components/ShoppingCart"
 import firebase from 'firebase/app';
 import 'firebase/database';
+import 'firebase/auth';
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
+
+const uiConfig = {
+  signInFlow: 'popup',
+  signInOptions: [
+    firebase.auth.GoogleAuthProvider.PROVIDER_ID
+  ],
+  callbacks: {
+    signInSuccessWithAuthResult: () => false
+  }
+};
 
 const firebaseConfig = {
   apiKey: "AIzaSyCK8vbymPcLDewFfHznSt8lEdgGZp4O4rk",
@@ -26,6 +38,7 @@ const App = () => {
   const [cartProducts, setCartProducts] = useState([]);
   const [inventory, setInventory] = useState({});
   const [sizes, setSizes] = useState([]);
+  const [user, setUser] = useState(null);
   const products = Object.values(data);
   const sizeFilter = () =>{
     var arr = [];
@@ -44,6 +57,9 @@ const App = () => {
       setData(json);
     };
     fetchProducts();
+  }, []);
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged(setUser);
   }, []);
   /* useEffect(() => {
     const fetchInventory = async () => {
@@ -88,11 +104,33 @@ const App = () => {
     }
     setSizes(arr);
   }
+  const Banner = ({ user }) => (
+    <React.Fragment>
+      { user ? <Welcome user={ user } /> : <SignIn /> }
+    </React.Fragment>
+  );
+  const Welcome = ({ user }) => (
+    <Message color="info">
+      <Message.Header>
+        Welcome, {user.displayName}
+        <Button primary onClick={() => firebase.auth().signOut()}>
+          Log out
+        </Button>
+      </Message.Header>
+    </Message>
+  );
+  const SignIn = () => (
+    <StyledFirebaseAuth
+      uiConfig={uiConfig}
+      firebaseAuth={firebase.auth()}
+    />
+  );
 
   return (
-    <React.Fragment>
+    <React.Fragment>      
       <ShoppingCart shopCartState={{cartOpen, setCartOpen}} productState={{cartProducts, setCartProducts}}>Cart</ShoppingCart>
       <Button onClick={() => { cartOpen? setCartOpen(false) : setCartOpen(true)}} id="shop-cart" size ="medium"><i className="material-icons">shopping_cart</i></Button>
+      <Banner user={ user } className="banner"/>
       <Button.Group>
         <Column size={1}>
             <Title size={4}>

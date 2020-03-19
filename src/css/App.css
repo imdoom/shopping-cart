@@ -6,6 +6,7 @@
   margin: 20px;
 }
 
-#shop-cart {
- 
+#firebaseui_container {
+  display: inline-flex;
+  margin-left: 40%;
 }
