@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import "rbx/index.css";
 import "./css/App.css";
 import "./css/ShoppingCart.css";
-import { Column, Notification, Image, Button, Title, Message } from "rbx";
-import ShoppingCart from "./components/ShoppingCart"
-import firebase from 'firebase/app';
+import { Column, Button, Title, Message } from "rbx";
+import ShoppingCart from "./components/ShoppingCart";
+import Product from "./components/Product";
+import firebase from './components/Firebase';
 import 'firebase/database';
 import 'firebase/auth';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
@@ -19,17 +20,6 @@ const uiConfig = {
   }
 };
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCK8vbymPcLDewFfHznSt8lEdgGZp4O4rk",
-  authDomain: "shopping-cart-2069e.firebaseapp.com",
-  databaseURL: "https://shopping-cart-2069e.firebaseio.com",
-  projectId: "shopping-cart-2069e",
-  storageBucket: "shopping-cart-2069e.appspot.com",
-  messagingSenderId: "17139108491",
-  appId: "1:17139108491:web:b7a7a301853ae0e95f228e",
-  measurementId: "G-NF59H641RN"
-};
-firebase.initializeApp(firebaseConfig);
 const db = firebase.database().ref();
 
 const App = () => {
@@ -38,17 +28,16 @@ const App = () => {
   const [cartProducts, setCartProducts] = useState([]);
   const [inventory, setInventory] = useState({});
   const [sizes, setSizes] = useState([]);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState();
+
   const products = Object.values(data);
-  const sizeFilter = () =>{
+  const sizeFilter = () => {
     var arr = [];
     var keys = Object.keys(inventory);
-    console.log("keys "+keys);
     sizes.length > 0 ? sizes.forEach(s => {keys.forEach(key => {if(inventory[key][s] > 0 && !arr.find(i => i.sku == key)) arr.push(products.find(p => p.sku == key))})}) : arr = [...products, ];
     return arr;
   }
   const shownProducts = sizeFilter();
-  //console.log("shown prod "+shownProducts);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -61,14 +50,7 @@ const App = () => {
   useEffect(() => {
     firebase.auth().onAuthStateChanged(setUser);
   }, []);
-  /* useEffect(() => {
-    const fetchInventory = async () => {
-      const response = await fetch('./data/inventory.json');
-      const json = await response.json();
-      setInventory(json);
-    };
-    fetchInventory();
-  }, []); */
+ 
   useEffect(() => {
     const handleData = snap => {
       if (snap.val()) setInventory(snap.val());
@@ -77,11 +59,11 @@ const App = () => {
     return () => { db.off('value', handleData); };
   }, []);
 
-  const AddProduct = (product) => {
-    var products = cartProducts;
-    var newProd = null;
+  const addProduct = (product) => {
+    let products = [...cartProducts];
+    let newProd;
     const index = products.findIndex(i => i.sku === product.sku);
-    console.log("index", index);
+    //console.log("index", index);
     if(index>-1){
       newProd = {...products[index], quantity: products[index].quantity + 1};
       products.splice(index, 1, newProd);
@@ -90,13 +72,13 @@ const App = () => {
       newProd = {...product, quantity: 1};
       products.push(newProd);
     }
-    console.log("After adding new prod", products);
+    //console.log("After adding new prod", products);
     setCartProducts(products);
   }
   const sizeSelection = size => {
-    var arr = [...sizes, ];
-    const index = arr.findIndex(s => s === size);
-    if(arr.includes(size)){
+    var arr = [...sizes];
+    const index = arr.indexOf(size);
+    if(index > -1){
       arr.splice(index, 1);
     }
     else{
@@ -127,42 +109,50 @@ const App = () => {
   );
 
   return (
-    <React.Fragment>      
+    <div id="app">
+      <Column.Group>
+        <Column textAlign="centered" size={2}>
+          <Title >Filter Sizes</Title>
+        </Column>
+        <Column size={2}>
+          <Button.Group textAlign="left" narrow>
+            <Button rounded onClick={() => sizeSelection('S')} color={sizes.includes('S') ? "black" : "" } className = "sizeBtn">S</Button>
+            <Button rounded onClick={() => sizeSelection('M')} color={sizes.includes('M') ? "black" : ""} className = "sizeBtn">M</Button>
+            <Button rounded onClick={() => sizeSelection('L')} color={sizes.includes('L') ? "black" : ""} className = "sizeBtn">L</Button>
+            <Button rounded onClick={() => sizeSelection('XL')} color={sizes.includes('XL') ? "black" : ""} className = "sizeBtn">XL</Button>
+          </Button.Group>
+        </Column>
+        <Column paddingless marginless>
+          <Banner user={ user }/>
+        </Column>
+        <Column textAlign="right" size={2}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="45px"
+            height="45px" 
+            viewBox="0 0 24 24" 
+            onClick={() => { setCartOpen(!cartOpen)}}
+            className="svgIcon"
+          >
+            <path fill="currentColor" d="M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75C7.17,14.7 7.18,14.66 7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.34 21,5.17 21,5A1,1 0 0,0 20,4H5.21L4.27,2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z" />
+          </svg>
+          {/* <Button  id="shop-cart" size ="large"><i className="material-icons">shopping_cart</i></Button> */}
+        </Column>        
+      </Column.Group>     
       <ShoppingCart shopCartState={{cartOpen, setCartOpen}} productState={{cartProducts, setCartProducts}}>Cart</ShoppingCart>
-      <Button onClick={() => { cartOpen? setCartOpen(false) : setCartOpen(true)}} id="shop-cart" size ="medium"><i className="material-icons">shopping_cart</i></Button>
-      <Banner user={ user } className="banner"/>
-      <Button.Group>
-        <Column size={1}>
-            <Title size={4}>
-              Sizes
-            </Title>
-        </Column>
-        <Column>
-          <Button onClick={() => sizeSelection('S')} color={sizes.includes('S') ? "black" : "light"}>S</Button>
-          <Button onClick={() => sizeSelection('M')} color={sizes.includes('M') ? "black" : "light"}>M</Button>
-          <Button onClick={() => sizeSelection('L')} color={sizes.includes('L') ? "black" : "light"}>L</Button>
-          <Button onClick={() => sizeSelection('XL')} color={sizes.includes('XL') ? "black" : "light"}>XL</Button>
-        </Column>
-      </Button.Group>
+      
       <Column.Group multiline centered gapSize={5} className="cards">
-        {shownProducts.map(product => <Column key={product.sku} size="one-quarter">
-                                    <Notification color="white" textAlign="centered">
-                                      <Image.Container size="128">
-                                        <Image
-                                          src={"./data/products/"+product.sku+"_1"+".jpg"}
-                                        />
-                                      </Image.Container>
-                                      {product.title}
-                                      <br></br>
-                                      <Title size={4}>${product.price}</Title>
-                                      <Button.Group align="centered">                                                                                   
-                                          {Object.keys(inventory).length > 0 ? Object.keys(inventory[product.sku]).map(s => (inventory[product.sku][s] > 0) && <Button>{s}</Button>) : null}                                        
-                                      </Button.Group>
-                                      <Button fullwidth color="black" size="large" onClick={()=>{setCartOpen(true); AddProduct(product)}}>Add to cart</Button>
-                                    </Notification>
-                                  </Column>)}
+        {shownProducts.map(product => ( 
+          <Product
+            key={product.sku}
+            product={product} 
+            inventory={inventory} 
+            setCartOpen={setCartOpen} 
+            addProduct={addProduct}
+          />
+        ))}
       </Column.Group>
-    </React.Fragment>
+    </div>
   );
 };
 

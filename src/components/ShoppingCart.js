@@ -1,14 +1,12 @@
 import React from 'react';
-import { Modal, Image, Button, Delete, Title, Column, List } from "rbx";
-import ReactDOM from 'react-dom';
-//import Modal from 'react-modal';
+import { Modal, Image, Button, Title, Column, List } from "rbx";
+import "../css/App.css";
 
 const ShoppingCart = ({shopCartState, productState}) => {
     const CalTotal = () => {
         var total = 0;
         productState.cartProducts.forEach((item) => total = total + item.quantity*item.price);
         return total;
-        //reduce((a,b) => {console.log("a,b price", a.price, b.price); return(a.price*a.quantity + b.price*b.quantity)}, {"price": 0, quantity: 0});
     }
     const RemoveProduct = product => {
         const index = productState.cartProducts.findIndex(i => i.sku === product.sku);
@@ -46,7 +44,17 @@ const ShoppingCart = ({shopCartState, productState}) => {
         <Modal.Card>
             <Modal.Card.Head>
             <Modal.Card.Title><Title>Shopping Cart</Title></Modal.Card.Title>
-            <Delete onClick={() => shopCartState.setCartOpen(false)}/>
+            {/* <Button onClick={() => shopCartState.setCartOpen(!shopCartState.cartOpen)} id="sword-cross" size ="large"><i className="material-icons">cancel</i></Button> */}
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="40px" 
+                height="40px" 
+                viewBox="0 0 24 24" 
+                onClick={() => shopCartState.setCartOpen(!shopCartState.cartOpen)}
+                className="svgIcon"
+            >
+                <path d="M6.2 2.44l11.9 11.9l2.12-2.12l1.41 1.41l-2.47 2.47l3.18 3.18c.39.39.39 1.02 0 1.41l-.71.71a.996.996 0 0 1-1.41 0L17 18.23l-2.44 2.47l-1.41-1.41l2.12-2.12l-11.9-11.9V2.44H6.2M15.89 10l4.74-4.74V2.44H17.8l-4.74 4.74L15.89 10m-4.95 5l-2.83-2.87l-2.21 2.21l-2.12-2.12l-1.41 1.41l2.47 2.47l-3.18 3.19a.996.996 0 0 0 0 1.41l.71.71c.39.39 1.02.39 1.41 0L7 18.23l2.44 2.47l1.41-1.41l-2.12-2.12L10.94 15z" fill="currentColor"/>
+            </svg>
             </Modal.Card.Head>
             <Modal.Card.Body>
             <List>
@@ -87,7 +95,7 @@ const ShoppingCart = ({shopCartState, productState}) => {
             </Modal.Card.Foot>
             <Button fullwidth color="black" size="large">Checkout</Button>
         </Modal.Card>
-        </Modal>)
-}
+        </Modal>);
+};
 
 export default ShoppingCart;
