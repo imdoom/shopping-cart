@@ -1,4 +1,16 @@
 import firebase from "firebase/app";
+import 'firebase/database';
+import 'firebase/auth';
+
+const uiConfig = {
+    signInFlow: 'popup',
+    signInOptions: [
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID
+    ],
+    callbacks: {
+        signInSuccessWithAuthResult: () => false
+    }
+};
 
 const firebaseConfig = {
     apiKey: "AIzaSyCK8vbymPcLDewFfHznSt8lEdgGZp4O4rk",
@@ -11,5 +23,6 @@ const firebaseConfig = {
     measurementId: "G-NF59H641RN"
 };
 firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref();
 
-export default firebase;
+export {db, uiConfig, firebase};

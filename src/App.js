@@ -5,22 +5,8 @@ import "./css/ShoppingCart.css";
 import { Column, Button, Title, Message } from "rbx";
 import ShoppingCart from "./components/ShoppingCart";
 import Product from "./components/Product";
-import firebase from './components/Firebase';
-import 'firebase/database';
-import 'firebase/auth';
+import {db, uiConfig, firebase} from './components/Firebase';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
-
-const uiConfig = {
-  signInFlow: 'popup',
-  signInOptions: [
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID
-  ],
-  callbacks: {
-    signInSuccessWithAuthResult: () => false
-  }
-};
-
-const db = firebase.database().ref();
 
 const App = () => {
   const [data, setData] = useState({});
@@ -29,6 +15,7 @@ const App = () => {
   const [inventory, setInventory] = useState({});
   const [sizes, setSizes] = useState([]);
   const [user, setUser] = useState();
+  const [loading, setLoading] = useState(false);
 
   const products = Object.values(data);
   const sizeFilter = () => {
@@ -47,11 +34,13 @@ const App = () => {
     };
     fetchProducts();
   }, []);
+
   useEffect(() => {
     firebase.auth().onAuthStateChanged(setUser);
   }, []);
  
   useEffect(() => {
+    setLoading(true);
     const handleData = snap => {
       if (snap.val()) setInventory(snap.val());
     }
