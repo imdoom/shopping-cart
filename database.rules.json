@@ -1,6 +1,12 @@
 {
   "rules": {
     ".read": true,
-    ".write": false
+    ".write": false,
+    "carts": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
   }
 }
